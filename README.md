@@ -1,35 +1,86 @@
-# Customer Segmentation & Personalized Marketing Engine
+# Customer Segmentation MLOps Pipeline
 
-An end-to-end Machine Learning project that segments customers using RFM (Recency, Frequency, Monetary) analysis and multiple clustering algorithms. The application provides customer segmentation through both a Flask REST API and a Streamlit dashboard. MLflow is used for experiment tracking and model versioning.
+An end-to-end MLOps project that performs customer segmentation using **RFM (Recency, Frequency, Monetary) analysis** and multiple unsupervised machine learning algorithms. The project automatically selects the best-performing clustering model, tracks experiments with **MLflow**, versions models using the **MLflow Model Registry**, and serves predictions through both a **Flask REST API** and a **Streamlit dashboard**.
 
 ---
 
 ## Features
 
-- RFM-based Customer Segmentation
-- CLV (Customer Lifetime Value) Feature Engineering
+- RFM (Recency, Frequency, Monetary) Analysis
+- Customer Lifetime Value (CLV) Feature Engineering
 - Automatic comparison of multiple clustering algorithms
 - Best model selection using Silhouette Score
 - MLflow Experiment Tracking
 - MLflow Model Registry & Versioning
+- Production Model Promotion
 - Flask REST API
 - Streamlit Interactive Dashboard
 - Docker Support
-- GitHub Actions CI Pipeline
+- GitHub Actions CI/CD Pipeline
+- Unit Testing with Pytest
+
+---
+
+## Architecture
+
+```
+Online Retail Dataset
+          │
+          ▼
+   Data Cleaning
+          │
+          ▼
+ Feature Engineering
+          │
+          ▼
+ Feature Scaling
+          │
+          ▼
+ Model Training
+          │
+          ▼
+ Model Comparison
+          │
+          ▼
+ Best Model Selection
+          │
+          ▼
+   MLflow Tracking
+          │
+          ▼
+  Model Registry
+          │
+          ▼
+ Flask API / Streamlit
+```
 
 ---
 
 ## Tech Stack
 
-- Python
+### Machine Learning
+
 - Scikit-learn
 - Pandas
 - NumPy
+
+### Backend
+
 - Flask
+
+### Frontend
+
 - Streamlit
+
+### MLOps
+
 - MLflow
 - Docker
 - GitHub Actions
+
+### Testing
+
+- Pytest
 
 ---
 
@@ -38,27 +89,56 @@ An end-to-end Machine Learning project that segments customers using RFM (Recenc
 ```
 customer-segmentation/
 │
+├── .github/
+│   └── workflows/
+│
+├── data/
+│   ├── raw/
+│   └── processed/
+│
 ├── src/
+│   ├── data_pipeline.py
+│   ├── feature_engineering.py
+│   ├── mlflow_tracking.py
+│   ├── train.py
+│   └── predict.py
+│
 ├── templates/
 ├── static/
 ├── tests/
-├── data/
+│
 ├── app.py
 ├── streamlit_app.py
-├── requirements.txt
 ├── Dockerfile
 ├── docker-compose.yml
+├── requirements.txt
 └── README.md
 ```
+
+---
+
+## Dataset
+
+This project uses the **Online Retail Dataset**.
+
+Place the dataset inside:
+
+```
+data/raw/online_retail.csv
+```
+
+Dataset Link:
+
+https://www.kaggle.com/datasets/vijayuv/onlineretail
 
 ---
 
 ## Installation
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/sajidali-ds/customer-segmentation-mlops.git
 
-cd customer-segmentation
+cd customer-segmentation-mlops
 
 python -m venv venv
 
@@ -66,19 +146,6 @@ venv\Scripts\activate
 
 pip install -r requirements.txt
 ```
-
----
-
-## Dataset
-
-Download the **Online Retail Dataset** from Kaggle and place it inside:
-
-```
-data/raw/online_retail.csv
-```
-
-Dataset:
-https://www.kaggle.com/datasets/vijayuv/onlineretail
 
 ---
 
@@ -92,13 +159,13 @@ python src/train.py
 
 ---
 
-## Run Flask Application
+## Run Flask API
 
 ```bash
 python app.py
 ```
 
-Open:
+Open
 
 ```
 http://127.0.0.1:5000
@@ -112,7 +179,7 @@ http://127.0.0.1:5000
 streamlit run streamlit_app.py
 ```
 
-Open:
+Open
 
 ```
 http://localhost:8501
@@ -126,7 +193,7 @@ http://localhost:8501
 mlflow ui --backend-store-uri sqlite:///mlflow.db --port 5050
 ```
 
-Open:
+Open
 
 ```
 http://127.0.0.1:5050
@@ -137,11 +204,11 @@ http://127.0.0.1:5050
 ## API Endpoints
 
 | Method | Endpoint |
-|---------|----------|
+|----------|-------------------|
 | GET | / |
 | GET | /health |
-| GET | /api/segments |
 | GET | /api/customers |
+| GET | /api/segments |
 | POST | /api/predict |
 | GET | /api/model-info |
 
@@ -150,36 +217,53 @@ http://127.0.0.1:5050
 ## Machine Learning Workflow
 
 - Data Cleaning
+- Missing Value Handling
 - RFM Feature Engineering
 - CLV Calculation
 - Feature Scaling
 - Model Training
 - Model Comparison
 - Best Model Selection
-- MLflow Tracking
-- Model Deployment
+- MLflow Experiment Tracking
+- Model Registration
+- Prediction API Deployment
 
-Algorithms Used:
+---
+
+## Algorithms Compared
 
 - K-Means
 - Agglomerative Clustering
-- Gaussian Mixture Model
+- Gaussian Mixture Model (GMM)
 - DBSCAN
+
+---
+
+## Results
+
+- Best Model: **Agglomerative Clustering**
+- Automatic model selection using **Silhouette Score**
+- MLflow-based experiment tracking
+- Automatic model versioning with Model Registry
 
 ---
 
 ## Future Improvements
 
-- Airflow Pipeline
+- Airflow Data Pipeline
+- Model Drift Detection
 - Model Monitoring
-- Drift Detection
-- PostgreSQL Integration
+- AWS Deployment
 - Kubernetes Deployment
 
 ---
 
 ## Author
 
-Sajid Ali
+**Sajid Ali**
+
 B.Tech CSE (Data Science)
-Jamia Millia Islamia   
+
+Jamia Millia Islamia
+
+GitHub: https://github.com/sajidali-ds
