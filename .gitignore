@@ -17,7 +17,7 @@ mlartifacts/
 mlflow.db
 
 # Models
-models/*.joblib
+
 models/*.pkl
 
 # Processed Data

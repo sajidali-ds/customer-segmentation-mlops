@@ -49,16 +49,17 @@ def load_predictor():
 if not models_are_trained():
     st.title("📊 Customer Segmentation Explorer")
     st.warning(
-        "No trained model found yet. Run this first, from a terminal in the "
-        "project folder:\n\n"
+        "No trained model found.\n\n"
+        "Run the following commands from the project directory:\n\n"
         "```bash\n"
-        "python src/generate_sample_data.py   # or add the real Kaggle CSV\n"
         "python src/data_pipeline.py\n"
         "python src/train.py\n"
-        "```\nThen refresh this page."
+        "```\n\n"
+        "Then refresh this page."
     )
     st.stop()
 
+    
 df = load_data()
 meta = joblib.load(META_PATH)
 
