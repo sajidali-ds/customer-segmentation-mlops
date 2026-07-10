@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Segmentation Engine</title>
+<style>
+  :root {
+    --bg: #f6f7f5;
+    --panel: #ffffff;
+    --ink: #16241f;
+    --ink-soft: #526059;
+    --line: #dfe4e0;
+    --accent: #1f6f5c;
+    --accent-soft: #e4f0ec;
+    --warn: #b5502f;
+    --mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+  }
+  header {
+    background: var(--ink);
+    color: #f2f5f3;
+    padding: 28px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  header h1 {
+    font-size: 1.25rem;
+    margin: 0;
+    letter-spacing: 0.2px;
+  }
+  header .tag {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: #9fb0a8;
+  }
+  .badge {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    background: var(--accent);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 3px;
+  }
+  main {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 32px 40px 80px;
+  }
+  .meta-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+  .meta-row span b { color: var(--ink); }
+  h2 {
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--ink-soft);
+    margin: 40px 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  .segment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+  }
+  .segment-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 18px 20px;
+  }
+  .segment-card .name {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+  .segment-card .count {
+    font-family: var(--mono);
+    font-size: 1.6rem;
+    color: var(--accent);
+  }
+  .segment-card .row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    margin-top: 4px;
+    font-family: var(--mono);
+  }
+  .charts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .charts img {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: #fff;
+  }
+  @media (max-width: 800px) {
+    .charts { grid-template-columns: 1fr; }
+    header { padding: 20px; }
+    main { padding: 24px 20px 60px; }
+  }
+  .predict-panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 24px;
+  }
+  .predict-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--ink-soft);
+    display: block;
+    margin-bottom: 6px;
+  }
+  input {
+    width: 100%;
+    padding: 9px 10px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    background: #fbfbfa;
+  }
+  input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  button {
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    padding: 11px 22px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: var(--sans);
+  }
+  button:hover { background: var(--accent); }
+  #predict-result {
+    margin-top: 16px;
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    padding: 14px;
+    border-radius: 4px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    display: none;
+    white-space: pre-wrap;
+  }
+  footer {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    padding: 20px;
+    font-family: var(--mono);
+  }
+  code { background: #eef1ef; padding: 1px 5px; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Customer Segmentation &amp; Personalized Marketing Engine</h1>
+    <div class="tag">RFM-based unsupervised segmentation · Flask backend</div>
+  </div>
+  <div class="badge">{{ algorithm }} · k={{ k }}</div>
+</header>
+
+<main>
+  <div class="meta-row">
+    <span><b>{{ total_customers }}</b> customers segmented</span>
+    <span>Silhouette score: <b>{{ silhouette }}</b></span>
+    <span>Selected algorithm: <b>{{ algorithm }}</b></span>
+  </div>
+
+  <h2>Segment Overview</h2>
+  <div class="segment-grid">
+    {% for seg in segments %}
+    <div class="segment-card">
+      <div class="name">{{ seg.segment }}</div>
+      <div class="count">{{ seg.customers }}</div>
+      <div class="row"><span>Avg recency</span><span>{{ seg.avg_recency }}d</span></div>
+      <div class="row"><span>Avg frequency</span><span>{{ seg.avg_frequency }}</span></div>
+      <div class="row"><span>Avg monetary</span><span>${{ seg.avg_monetary }}</span></div>
+      <div class="row"><span>Avg CLV/yr</span><span>${{ seg.avg_clv }}</span></div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <h2>Cluster Visualizations</h2>
+  <div class="charts">
+    <img src="/static/cluster_pca.png" alt="PCA projection of customer segments">
+    <img src="/static/segment_profiles.png" alt="Segment profile comparison">
+  </div>
+
+  <h2>Try It: Predict a Segment</h2>
+  <div class="predict-panel">
+    <div class="predict-form">
+      <div>
+        <label>Recency (days since last order)</label>
+        <input type="number" id="recency" value="10">
+      </div>
+      <div>
+        <label>Frequency (# orders)</label>
+        <input type="number" id="frequency" value="12">
+      </div>
+      <div>
+        <label>Monetary (total spend)</label>
+        <input type="number" id="monetary" value="850">
+      </div>
+      <div>
+        <label>Tenure (days as customer)</label>
+        <input type="number" id="tenure_days" value="240">
+      </div>
+      <div>
+        <label>Avg basket size</label>
+        <input type="number" id="avg_basket_size" value="5">
+      </div>
+    </div>
+    <button onclick="predict()">Predict Segment</button>
+    <div id="predict-result"></div>
+  </div>
+
+  <h2>API Reference</h2>
+  <p style="font-size:0.9rem; color:var(--ink-soft)">
+    <code>GET /api/segments</code> — segment summary &nbsp;·&nbsp;
+    <code>GET /api/customers</code> — paginated customer list &nbsp;·&nbsp;
+    <code>POST /api/predict</code> — score a single customer &nbsp;·&nbsp;
+    <code>GET /api/model-info</code> — algorithm comparison &amp; metadata
+  </p>
+</main>
+
+<footer>Customer Segmentation Engine · Flask + scikit-learn</footer>
+
+<script>
+async function predict() {
+  const payload = {
+    recency: parseFloat(document.getElementById('recency').value),
+    frequency: parseFloat(document.getElementById('frequency').value),
+    monetary: parseFloat(document.getElementById('monetary').value),
+    tenure_days: parseFloat(document.getElementById('tenure_days').value),
+    avg_basket_size: parseFloat(document.getElementById('avg_basket_size').value),
+  };
+  const box = document.getElementById('predict-result');
+  box.style.display = 'block';
+  box.textContent = 'Scoring...';
+  try {
+    const res = await fetch('/api/predict', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.error) {
+      box.textContent = 'Error: ' + data.error;
+    } else {
+      box.textContent =
+        'Segment: ' + data.segment +
+        '\ncluster_id: ' + data.cluster_id +
+        '\nestimated_clv: $' + data.estimated_clv +
+        '\nalgorithm_used: ' + data.algorithm_used;
+    }
+  } catch (e) {
+    box.textContent = 'Request failed: ' + e;
+  }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Lint with flake8
+        run: |
+          # Fail the build on real errors (syntax, undefined names);
+          # treat style nits as warnings so CI stays useful, not noisy.
+          flake8 src/ app.py streamlit_app.py --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 src/ app.py streamlit_app.py --count --exit-zero --max-line-length=120 --statistics
+
+      - name: Run unit tests
+        run: |
+          pytest tests/ -v --tb=short
+
+      - name: Smoke-test the training pipeline end-to-end
+        run: |
+          python src/generate_sample_data.py
+          python src/data_pipeline.py
+          python src/train.py
+        env:
+          MLFLOW_TRACKING_URI: file:./mlruns
+
+      - name: Verify model artifacts were produced
+        run: |
+          test -f models/segmentation_model.joblib
+          test -f models/scaler.joblib
+          test -f models/model_meta.joblib
+          test -f data/processed/customer_segments.csv
+          echo "All expected model artifacts present."
+
+      - name: Upload MLflow run artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mlflow-runs
+          path: mlruns/
+          retention-days: 14
+
+      - name: Upload trained model artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: trained-model
+          path: |
+            models/
+            static/*.png
+          retention-days: 14

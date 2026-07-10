@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  segmentation-app:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./static:/app/static
+      - ./mlruns:/app/mlruns
+    environment:
+      - FLASK_ENV=production
+      - MLFLOW_TRACKING_URI=file:./mlruns

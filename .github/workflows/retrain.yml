@@ -1,0 +1,50 @@
+name: Scheduled Retraining
+
+on:
+  schedule:
+    - cron: "0 3 * * 1"   # every Monday at 03:00 UTC
+  workflow_dispatch: {}     # allows manual "Run workflow" button in GitHub UI
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # In a real deployment this step would pull fresh transactions from a
+      # warehouse/production DB instead of regenerating sample data. Swap
+      # this line for your real ingestion step (or a `download_kaggle_data.py`
+      # run against updated data) when you go beyond the demo dataset.
+      - name: Refresh input data
+        run: python src/generate_sample_data.py
+
+      - name: Run pipeline (clean -> feature engineer -> train -> log to MLflow -> register + gate)
+        run: |
+          python src/data_pipeline.py
+          python src/train.py
+        env:
+          MLFLOW_TRACKING_URI: file:./mlruns
+
+      - name: Upload retraining artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: retrained-model-${{ github.run_number }}
+          path: |
+            models/
+            mlruns/
+            data/processed/customer_segments.csv
+            data/processed/model_comparison.json
+          retention-days: 30
