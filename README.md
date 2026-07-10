@@ -3,6 +3,12 @@
 An end-to-end MLOps project that performs customer segmentation using **RFM (Recency, Frequency, Monetary) analysis** and multiple unsupervised machine learning algorithms. The project automatically selects the best-performing clustering model, tracks experiments with **MLflow**, versions models using the **MLflow Model Registry**, and serves predictions through both a **Flask REST API** and a **Streamlit dashboard**.
 
 ---
+## Live Demo
+
+🌐 Streamlit App:
+
+https://customer-segmentation-mlops-bzwvsjqq8kkx8pw22kps8f.streamlit.app
+
 
 ## Features
 
